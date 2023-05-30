@@ -117,12 +117,16 @@ app.patch('/wines/:id', async (req, res) => {
   // const newDescription = req.body.newDescription;
   const { newDescription } = req.body;
   try {
-    const wineItem = await Wine.findByIdAndUpdate(id, {
-      description: newDescription,
-    });
+    const wineItem = await Wine.findByIdAndUpdate(
+      id,
+      {
+        description: newDescription,
+      },
+      { new: true } // this will make sure that the updated wine item is returned
+    );
     res.status(200).json({
       success: true,
-      response: {},
+      response: wineItem, // this will return the updated wine item
       message: 'Updated successfully',
     });
   } catch (e) {
