@@ -109,6 +109,70 @@ app.get('/wines', async (req, res) => {
   }
 });
 
+// PATCH - update a wine item by id
+// in Postman do PATCH req example: http://localhost:8080/wines/6475f2223f1a82fd858bd83d
+// make sure in the body you have ONLY "newDescription": "Your new description"
+app.patch('/wines/:id', async (req, res) => {
+  const { id } = req.params;
+  // const newDescription = req.body.newDescription;
+  const { newDescription } = req.body;
+  try {
+    const wineItem = await Wine.findByIdAndUpdate(id, {
+      description: newDescription,
+    });
+    res.status(200).json({
+      success: true,
+      response: {},
+      message: 'Updated successfully',
+    });
+  } catch (e) {
+    res.status(400).json({
+      success: false,
+      response: e,
+      message: 'Did not updated successfully',
+    });
+  }
+});
+
+// modify the endpoint when nothing is found
+
+// GET - get a wine item by id
+app.get('/wines/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const wineItem = await Wine.findById(id);
+    res.status(200).json({
+      success: true,
+      response: wineItem,
+      message: 'Found successfully',
+    });
+  } catch (e) {
+    res.status(400).json({
+      success: false,
+      response: e,
+      message: 'Did not found successfully',
+    });
+  }
+});
+
+// DELETE - delete a wine item by id
+app.delete('/wines/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const wineItem = await Wine.findByIdAndDelete(id);
+    res.status(200).json({
+      success: true,
+      response: wineItem,
+      message: 'Deleted successfully',
+    });
+  } catch (e) {
+    res.status(400).json({
+      success: false,
+      response: e,
+      message: 'Did not deleted',
+    });
+  }
+});
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
