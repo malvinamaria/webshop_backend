@@ -46,7 +46,7 @@ const WineSchema = new Schema({
   price: {
     type: Number,
     min: 1,
-    max: 5,
+    max: 1000,
   },
   createdAt: {
     type: Date,
@@ -54,16 +54,16 @@ const WineSchema = new Schema({
   },
   variety: {
     type: String,
-    enum: [
-      'red',
-      'white',
-      'rose',
-      'sparkling',
-      'Tinta de Toro',
-      'Sauvignon Blanc',
-      'Pinot Noir',
-      'other',
-    ], // array of strings that the value of kind can be
+    // enum: [
+    //   'red',
+    //   'white',
+    //   'rose',
+    //   'sparkling',
+    //   'Tinta de Toro',
+    //   'Sauvignon Blanc',
+    //   'Pinot Noir',
+    //   'other',
+    // ],
     required: true,
   },
   country: {
@@ -123,20 +123,31 @@ app.post('/wines', async (req, res) => {
 // PATCH - update smth
 
 // GET - get all wines
+// with added variety and price query, we can search for example GET http://localhost:8080/wines?variety=red in order to get variety=red or white
+// with http://localhost:8080/wines?price=16 >> we can get all wines with price greater than 16
 app.get('/wines', async (req, res) => {
-  const wines = await Wine.find();
-  if (wines) {
-    res.status(200).json({
-      success: true,
-      response: wines,
-      message: 'Wine items successfully retrieved',
+  const { variety, price } = req.query;
+  const response = {
+    success: true,
+    body: {},
+  };
+  // Regex only for strings
+  const varietyRegex = new RegExp(variety);
+  const priceQuery = { $gt: price ? price : 0 };
+
+  try {
+    const searchResultFromDB = await Wine.find({
+      variety: varietyRegex,
+      price: priceQuery,
     });
-  } else {
-    res.status(404).json({
-      success: false,
-      response: 'No wine items found',
-      message: 'No wine items found',
-    });
+    if (searchResultFromDB) {
+      response.body = searchResultFromDB;
+      res.status(200).json(response);
+    } else {
+      (response.success = false), res.status(500).json(response);
+    }
+  } catch (e) {
+    (response.success = false), res.status(500).json(response);
   }
 });
 
