@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import listEndpoints from 'express-list-endpoints';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import wineData from './data/wine.json';
 
 const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost/project-wine';
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -42,36 +43,64 @@ const WineSchema = new Schema({
     maxlength: 300,
     trim: true, // removes whitespace before and after the string
   },
-  rating: {
+  price: {
     type: Number,
     min: 1,
     max: 5,
-    required: true,
   },
   createdAt: {
     type: Date,
     default: new Date(), // this will set the default value of the createdAt field to be the current date
   },
-  kind: {
+  variety: {
     type: String,
-    enum: ['red', 'white', 'rose', 'sparkling', 'other'], // array of strings that the value of kind can be
+    enum: [
+      'red',
+      'white',
+      'rose',
+      'sparkling',
+      'Tinta de Toro',
+      'Sauvignon Blanc',
+      'Pinot Noir',
+      'other',
+    ], // array of strings that the value of kind can be
     required: true,
+  },
+  country: {
+    type: String,
   },
 });
 
 /////////////////// MODEL ///////////////////////
 const Wine = mongoose.model('Wine', WineSchema);
 
+////////////////////////// RESET DATABASE //////////////////////////
+// reset database with use of environment variable or do it manually
+// run in terminal RESET_DB=true npm run dev
+if (process.env.RESET_DB) {
+  const resetDatabase = async () => {
+    // async function to reset database
+    await Wine.deleteMany(); // delete all data wines
+    wineData.forEach((singleWine) => {
+      // loop through the wineData array
+      const newWine = new Wine(singleWine); // create new wine item
+      newWine.save(); // save to database
+    });
+  };
+  console.log('Resetting database!');
+  resetDatabase();
+}
+
 /////////////////// ENDPOINTS ///////////////////////
 app.post('/wines', async (req, res) => {
   //  POST endpoint to create a new wine
-  const { name, description, rating, kind } = req.body; //  destructuring the request body to get the values of name, description, rating and kind
+  const { name, description, rating, variety } = req.body; //  destructuring the request body to get the values of name, description, rating and kind
   try {
     const newWineItem = await new Wine({
       name,
       description,
       rating,
-      kind,
+      variety,
     }).save(); //  creating a new wine item and saving it to the database
     res.status(201).json({
       success: true,
