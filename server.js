@@ -316,6 +316,7 @@ const authenticateUser = async (req, res, next) => {
 };
 
 // we want to make sure that only logged in users can access this endpoint
+// http://localhost:8080/secrets in Postman with accessToken in the header of scpecific user
 app.get('/secrets', authenticateUser);
 app.get('/secrets', async (req, res) => {
   const accessToken = req.header('Authorization');
