@@ -312,7 +312,7 @@ app.post('/login', async (req, res) => {
   }
 });
 /// Secret message
-const SecretSchema = new mongoose.Schema({
+const MyWineSchema = new mongoose.Schema({
   message: {
     type: String,
   },
@@ -327,7 +327,7 @@ const SecretSchema = new mongoose.Schema({
 });
 
 // secret message model
-const Secret = mongoose.model('Secret', SecretSchema);
+const MyWine = mongoose.model('MyWine', MyWineSchema);
 
 // authenticate the user
 const authenticateUser = async (req, res, next) => {
@@ -357,26 +357,26 @@ const authenticateUser = async (req, res, next) => {
 
 // we want to make sure that only logged in users can access this endpoint
 // http://localhost:8080/secrets in Postman with accessToken in the header of scpecific user
-app.get('/secrets', authenticateUser);
-app.get('/secrets', async (req, res) => {
+app.get('/myWines', authenticateUser);
+app.get('/myWines', async (req, res) => {
   const accessToken = req.header('Authorization');
   const user = await User.findOne({ accessToken: accessToken });
-  const secrets = await Secret.find({ user: user._id });
+  const myWines = await myWine.find({ user: user._id });
   // const secrets = await Secret.find({ user: user._id });
-  res.status(200).json({ success: true, response: secrets });
+  res.status(200).json({ success: true, response: myWines });
 });
 
 // In Postman, add the accessToken to the request header under the key Authorization, with http://localhost:8080/secrets and in the body
 // {
 //    "message": "I am a genius"
 // }
-app.post('/secrets', authenticateUser);
-app.post('/secrets', async (req, res) => {
+app.post('/myWines', authenticateUser);
+app.post('/myWines', async (req, res) => {
   // create secret message
   const { message } = req.body; // get message from request body
   const accessToken = req.header('Authorization'); // get accessToken from request header
   const user = await User.findOne({ accessToken: accessToken }); // find user by accessToken
-  const secrets = await new Secret({ message: message, user: user._id }).save(); // create new secret message and save to database
+  const myWines = await new MyWine({ message: message, user: user._id }).save(); // create new secret message and save to database
 });
 
 ////////////
