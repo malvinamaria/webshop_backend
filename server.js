@@ -20,7 +20,7 @@ const app = express();
 // app.use(cors());
 app.use(
   cors({
-    origin: 'https://master--resilient-malabi-e75d30.netlify.app/',
+    origin: 'https://master--resilient-malabi-e75d30.netlify.app',
   })
 );
 app.use(express.json());
